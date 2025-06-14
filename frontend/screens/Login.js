@@ -37,11 +37,13 @@ const Login = () => {
     };
 
     if (socket) {
-      if (socket.connected) {
-        emitUserConnected();
-      } else {
+      socket.removeAllListeners();
+      if (!socket.connected) {
+        socket.connect();
+
         // Poczekaj na połączenie, wtedy wyemituj
         socket.once('connect', emitUserConnected);
+        if (socket.connected) emitUserConnected();
       }
     }
 

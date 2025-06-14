@@ -25,7 +25,7 @@ const DrawerContent = ({ navigation }) => {
   if (socket && socket.connected && userId) {
     console.log('[SOCKET] user_disconnected:', userId);
     socket.emit('user_disconnected', userId, async () => {
-
+      console.log('[SOCKET] Odpowiedź z backendu na disconnect');
       await AsyncStorage.multiRemove(['userId', 'token', 'username', 'role']);
       socket.disconnect();
     });
@@ -34,7 +34,7 @@ const DrawerContent = ({ navigation }) => {
     setTimeout(async () => {
       await AsyncStorage.multiRemove(['userId', 'token', 'username', 'role']);
       socket.disconnect();
-    }, 3000);
+    }, 2000);
 
   } else {
     await AsyncStorage.multiRemove(['userId', 'token', 'username', 'role']);

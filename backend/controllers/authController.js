@@ -37,6 +37,19 @@ exports.registerUser = async (req, res) => {
       console.error(insertError);
       return res.status(500).json({ message: 'Użytkownik utworzony, ale nie dodano do bazy danych.' });
     }
+    // Dodanie użytkownika do online_status
+    const { error: statusError } = await supabaseAdmin.from('online_status').insert([
+      {
+        user_id: userId,
+        is_online: false,
+        last_active: new Date().toISOString()
+      }
+    ]);
+
+    if (statusError) {
+      console.error(statusError);
+      return res.status(500).json({ message: 'Użytkownik utworzony, ale nie dodano do online_status.' });
+    }
 
     res.status(201).json({ message: 'Użytkownik zarejestrowany', user: data.user });
 
@@ -66,6 +79,15 @@ exports.loginUser = async (req, res) => {
       .select('username, role')
       .eq('id', user.id)
       .maybeSingle();
+
+      // Aktualizuj online_status po logowaniu
+      await supabaseAdmin
+        .from('online_status')
+        .update({
+          is_online: true,
+          last_active: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
 
     if (profileError) {
       console.error(profileError);
